@@ -32,14 +32,19 @@ const playwrite = Playwrite_DE_SAS({
   weight: "400",
 });
 
-const loginSchema = z.object({
+const registerSchema = z.object({
+  name: z.string().min(1, "Name is required"),
   email: z.email("Please enter a valid email address"),
   password: z.string().min(6, "Password must be at least 6 characters"),
+  confirmPassword: z.string().min(6, "Confirm password must be at least 6 characters"),
+}).refine((data) => data.password === data.confirmPassword, {
+  path: ["confirmPassword"],
+  message: "Passwords do not match",
 });
 
-type LoginFormData = z.infer<typeof loginSchema>;
+type RegisterFormData = z.infer<typeof registerSchema>;
 
-export function LoginForm({
+export function RegisterForm({
   className,
   ...props
 }: React.ComponentProps<"div">) {
@@ -48,26 +53,29 @@ export function LoginForm({
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
 
-  const form = useForm<LoginFormData>({
-    resolver: zodResolver(loginSchema),
+  const form = useForm<RegisterFormData>({
+    resolver: zodResolver(registerSchema),
     defaultValues: {
+      name: "",
       email: "",
       password: "",
+      confirmPassword: "",
     },
   });
 
-  const onSubmit = async (data: LoginFormData) => {
+  const onSubmit = async (data: RegisterFormData) => {
     setIsLoading(true);
     setError(null);
 
     try {
-      const result = await authClient.signIn.email({
+      const result = await authClient.signUp.email({
+        name: data.name,
         email: data.email,
         password: data.password,
       });
 
       if (result.error) {
-        setError(result.error.message || "Login failed");
+        setError(result.error.message || "Registration failed");
       } else {
         router.push("/dashboard");
       }
@@ -94,9 +102,9 @@ export function LoginForm({
                   >
                     Rain Drop Finance
                   </h1>
-                  <h2 className="text-2xl font-bold">Login to your account</h2>
+                  <h2 className="text-2xl font-bold">Create an account</h2>
                   <p className="text-muted-foreground text-balance">
-                    Enter your email and password to login
+                    Enter your details to create an account
                   </p>
                 </div>
 
@@ -105,6 +113,25 @@ export function LoginForm({
                     {error}
                   </div>
                 )}
+
+                <FormField
+                  control={form.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Name</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="text"
+                          placeholder="John Doe"
+                          {...field}
+                          disabled={isLoading}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
                 <FormField
                   control={form.control}
@@ -132,12 +159,41 @@ export function LoginForm({
                     <FormItem>
                       <div className="flex items-center">
                         <FormLabel>Password</FormLabel>
-                        {/* <a
-                          href="#"
-                          className="ml-auto text-sm underline-offset-2 hover:underline"
-                        >
-                          Forgot your password?
-                        </a> */}
+                      </div>
+                      <FormControl>
+                        <div className="relative">
+                          <Input
+                          placeholder="********"
+                            type={showPassword ? "text" : "password"}
+                            {...field}
+                            disabled={isLoading}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                            disabled={isLoading}
+                          >
+                            {showPassword ? (
+                              <EyeOff className="h-4 w-4" />
+                            ) : (
+                              <Eye className="h-4 w-4" />
+                            )}
+                          </button>
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="confirmPassword"
+                  render={({ field }) => (
+                    <FormItem>
+                      <div className="flex items-center">
+                        <FormLabel>Confirm Password</FormLabel>
                       </div>
                       <FormControl>
                         <div className="relative">
@@ -167,11 +223,11 @@ export function LoginForm({
                 />
 
                 <Button type="submit" disabled={isLoading} className="w-full">
-                  {isLoading ? "Signing in..." : "Login"}
+                  {isLoading ? "Signing up..." : "Create account"}
                 </Button>
 
                 <FieldDescription className="text-center">
-                  Don&apos;t have an account? <Link href="/register">Sign up</Link>
+                 Already have an account? <Link href="/">Sign in</Link>
                 </FieldDescription>
               </FieldGroup>
             </form>
