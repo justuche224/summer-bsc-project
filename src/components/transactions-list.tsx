@@ -1,14 +1,26 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { useFinanceStore } from "@/lib/finance-store"
-import { ArrowUpIcon, ArrowDownIcon, EditIcon, TrashIcon, SearchIcon } from "lucide-react"
-import { TransactionDialog } from "./transaction-dialog"
+import { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useTransactions, useDeleteTransaction } from "@/lib/finance-queries";
+import {
+  ArrowUpIcon,
+  ArrowDownIcon,
+  EditIcon,
+  TrashIcon,
+  SearchIcon,
+} from "lucide-react";
+import { TransactionDialog } from "./transaction-dialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -19,28 +31,33 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
+} from "@/components/ui/alert-dialog";
 
 export function TransactionsList() {
-  const transactions = useFinanceStore((state) => state.transactions)
-  const deleteTransaction = useFinanceStore((state) => state.deleteTransaction)
-  const [searchQuery, setSearchQuery] = useState("")
-  const [filterType, setFilterType] = useState<"all" | "income" | "expense">("all")
-  const [filterCategory, setFilterCategory] = useState("all")
+  const { data: transactions = [], isLoading } = useTransactions();
+  const deleteTransactionMutation = useDeleteTransaction();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [filterType, setFilterType] = useState<"all" | "income" | "expense">(
+    "all"
+  );
+  const [filterCategory, setFilterCategory] = useState("all");
 
   // Get unique categories
-  const categories = Array.from(new Set(transactions.map((t) => t.category)))
+  const categories = Array.from(new Set(transactions.map((t) => t.category)));
 
   // Filter transactions
   const filteredTransactions = transactions.filter((transaction) => {
     const matchesSearch =
-      transaction.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      transaction.category.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesType = filterType === "all" || transaction.type === filterType
-    const matchesCategory = filterCategory === "all" || transaction.category === filterCategory
+      transaction.description
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase()) ||
+      transaction.category.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesType = filterType === "all" || transaction.type === filterType;
+    const matchesCategory =
+      filterCategory === "all" || transaction.category === filterCategory;
 
-    return matchesSearch && matchesType && matchesCategory
-  })
+    return matchesSearch && matchesType && matchesCategory;
+  });
 
   return (
     <Card>
@@ -59,7 +76,12 @@ export function TransactionsList() {
               className="pl-9"
             />
           </div>
-          <Select value={filterType} onValueChange={(value: "all" | "income" | "expense") => setFilterType(value)}>
+          <Select
+            value={filterType}
+            onValueChange={(value: "all" | "income" | "expense") =>
+              setFilterType(value)
+            }
+          >
             <SelectTrigger className="w-full sm:w-[150px]">
               <SelectValue placeholder="Type" />
             </SelectTrigger>
@@ -86,7 +108,11 @@ export function TransactionsList() {
 
         {/* Transactions List */}
         <div className="space-y-3">
-          {filteredTransactions.length === 0 ? (
+          {isLoading ? (
+            <div className="text-center py-12 text-muted-foreground">
+              <p>Loading transactions...</p>
+            </div>
+          ) : filteredTransactions.length === 0 ? (
             <div className="text-center py-12 text-muted-foreground">
               <p>No transactions found</p>
             </div>
@@ -99,7 +125,9 @@ export function TransactionsList() {
                 <div className="flex items-center gap-4 flex-1">
                   <div
                     className={`rounded-full p-2 ${
-                      transaction.type === "income" ? "bg-primary/10" : "bg-destructive/10"
+                      transaction.type === "income"
+                        ? "bg-primary/10"
+                        : "bg-destructive/10"
                     }`}
                   >
                     {transaction.type === "income" ? (
@@ -115,21 +143,27 @@ export function TransactionsList() {
                         {transaction.category}
                       </Badge>
                       <span className="text-sm text-muted-foreground">
-                        {new Date(transaction.date).toLocaleDateString("en-NG", {
-                          year: "numeric",
-                          month: "short",
-                          day: "numeric",
-                        })}
+                        {new Date(transaction.date).toLocaleDateString(
+                          "en-NG",
+                          {
+                            year: "numeric",
+                            month: "short",
+                            day: "numeric",
+                          }
+                        )}
                       </span>
                     </div>
                   </div>
                   <div className="text-right">
                     <p
                       className={`font-semibold text-lg ${
-                        transaction.type === "income" ? "text-primary" : "text-destructive"
+                        transaction.type === "income"
+                          ? "text-primary"
+                          : "text-destructive"
                       }`}
                     >
-                      {transaction.type === "income" ? "+" : "-"}₦{transaction.amount.toLocaleString()}
+                      {transaction.type === "income" ? "+" : "-"}₦
+                      {transaction.amount.toLocaleString()}
                     </p>
                   </div>
                 </div>
@@ -152,12 +186,19 @@ export function TransactionsList() {
                       <AlertDialogHeader>
                         <AlertDialogTitle>Delete Transaction</AlertDialogTitle>
                         <AlertDialogDescription>
-                          Are you sure you want to delete this transaction? This action cannot be undone.
+                          Are you sure you want to delete this transaction? This
+                          action cannot be undone.
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
                         <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={() => deleteTransaction(transaction.id)}>Delete</AlertDialogAction>
+                        <AlertDialogAction
+                          onClick={() =>
+                            deleteTransactionMutation.mutate(transaction.id)
+                          }
+                        >
+                          Delete
+                        </AlertDialogAction>
                       </AlertDialogFooter>
                     </AlertDialogContent>
                   </AlertDialog>
@@ -168,5 +209,5 @@ export function TransactionsList() {
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }

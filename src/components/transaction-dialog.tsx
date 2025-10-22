@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -12,42 +12,61 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { useFinanceStore } from "@/lib/finance-store"
-import { PlusIcon } from "lucide-react"
-import type { Transaction } from "@/lib/types"
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useAddTransaction, useUpdateTransaction } from "@/lib/finance-queries";
+import { PlusIcon } from "lucide-react";
+import type { Transaction } from "@/lib/types";
 
 const categories = {
   income: ["Salary", "Freelance", "Investment", "Gift", "Other"],
-  expense: ["Rent", "Food", "Transport", "Entertainment", "Utilities", "Healthcare", "Shopping", "Other"],
-}
+  expense: [
+    "Rent",
+    "Food",
+    "Transport",
+    "Entertainment",
+    "Utilities",
+    "Healthcare",
+    "Shopping",
+    "Other",
+  ],
+};
 
 interface TransactionDialogProps {
-  transaction?: Transaction
-  trigger?: React.ReactNode
+  transaction?: Transaction;
+  trigger?: React.ReactNode;
 }
 
-export function TransactionDialog({ transaction, trigger }: TransactionDialogProps) {
-  const [open, setOpen] = useState(false)
-  const addTransaction = useFinanceStore((state) => state.addTransaction)
-  const updateTransaction = useFinanceStore((state) => state.updateTransaction)
+export function TransactionDialog({
+  transaction,
+  trigger,
+}: TransactionDialogProps) {
+  const [open, setOpen] = useState(false);
+  const addTransactionMutation = useAddTransaction();
+  const updateTransactionMutation = useUpdateTransaction();
 
   const [formData, setFormData] = useState({
     type: transaction?.type || ("expense" as "income" | "expense"),
     amount: transaction?.amount.toString() || "",
     category: transaction?.category || "",
     description: transaction?.description || "",
-    date: transaction?.date.split("T")[0] || new Date().toISOString().split("T")[0],
-  })
+    date:
+      transaction?.date.split("T")[0] || new Date().toISOString().split("T")[0],
+  });
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
     if (!formData.amount || !formData.category || !formData.description) {
-      return
+      return;
     }
 
     const transactionData = {
@@ -56,23 +75,26 @@ export function TransactionDialog({ transaction, trigger }: TransactionDialogPro
       category: formData.category,
       description: formData.description,
       date: new Date(formData.date).toISOString(),
-    }
+    };
 
     if (transaction) {
-      updateTransaction(transaction.id, transactionData)
+      updateTransactionMutation.mutate({
+        id: transaction.id,
+        data: transactionData,
+      });
     } else {
-      addTransaction(transactionData)
+      addTransactionMutation.mutate(transactionData);
     }
 
-    setOpen(false)
+    setOpen(false);
     setFormData({
       type: "expense",
       amount: "",
       category: "",
       description: "",
       date: new Date().toISOString().split("T")[0],
-    })
-  }
+    });
+  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -86,9 +108,13 @@ export function TransactionDialog({ transaction, trigger }: TransactionDialogPro
       </DialogTrigger>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>{transaction ? "Edit Transaction" : "Add New Transaction"}</DialogTitle>
+          <DialogTitle>
+            {transaction ? "Edit Transaction" : "Add New Transaction"}
+          </DialogTitle>
           <DialogDescription>
-            {transaction ? "Update the transaction details below." : "Enter the details of your transaction below."}
+            {transaction
+              ? "Update the transaction details below."
+              : "Enter the details of your transaction below."}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
@@ -97,7 +123,9 @@ export function TransactionDialog({ transaction, trigger }: TransactionDialogPro
               <Label htmlFor="type">Type</Label>
               <Select
                 value={formData.type}
-                onValueChange={(value: "income" | "expense") => setFormData({ ...formData, type: value, category: "" })}
+                onValueChange={(value: "income" | "expense") =>
+                  setFormData({ ...formData, type: value, category: "" })
+                }
               >
                 <SelectTrigger id="type">
                   <SelectValue placeholder="Select type" />
@@ -116,7 +144,9 @@ export function TransactionDialog({ transaction, trigger }: TransactionDialogPro
                 type="number"
                 placeholder="0.00"
                 value={formData.amount}
-                onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, amount: e.target.value })
+                }
                 required
               />
             </div>
@@ -125,7 +155,9 @@ export function TransactionDialog({ transaction, trigger }: TransactionDialogPro
               <Label htmlFor="category">Category</Label>
               <Select
                 value={formData.category}
-                onValueChange={(value) => setFormData({ ...formData, category: value })}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, category: value })
+                }
               >
                 <SelectTrigger id="category">
                   <SelectValue placeholder="Select category" />
@@ -146,7 +178,9 @@ export function TransactionDialog({ transaction, trigger }: TransactionDialogPro
                 id="description"
                 placeholder="Enter description"
                 value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, description: e.target.value })
+                }
                 required
               />
             </div>
@@ -157,19 +191,27 @@ export function TransactionDialog({ transaction, trigger }: TransactionDialogPro
                 id="date"
                 type="date"
                 value={formData.date}
-                onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, date: e.target.value })
+                }
                 required
               />
             </div>
           </div>
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setOpen(false)}
+            >
               Cancel
             </Button>
-            <Button type="submit">{transaction ? "Update" : "Add"} Transaction</Button>
+            <Button type="submit">
+              {transaction ? "Update" : "Add"} Transaction
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

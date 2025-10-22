@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,45 +9,59 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { useFinanceStore } from "@/lib/finance-store"
-import { BellIcon, AlertTriangleIcon, InfoIcon, CheckCircleIcon } from "lucide-react"
-import { ScrollArea } from "@/components/ui/scroll-area"
+} from "@/components/ui/dropdown-menu";
+import { useFinanceStore } from "@/lib/finance-store";
+import {
+  useAlerts,
+  useMarkAlertAsRead,
+  useClearAlert,
+} from "@/lib/finance-queries";
+import {
+  BellIcon,
+  AlertTriangleIcon,
+  InfoIcon,
+  CheckCircleIcon,
+} from "lucide-react";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 export function AlertsDropdown() {
-  const alerts = useFinanceStore((state) => state.alerts)
-  const markAlertAsRead = useFinanceStore((state) => state.markAlertAsRead)
-  const clearAlert = useFinanceStore((state) => state.clearAlert)
+  const { data: alerts = [] } = useAlerts();
+  const markAlertAsReadMutation = useMarkAlertAsRead();
+  const clearAlertMutation = useClearAlert();
 
-  const unreadCount = alerts.filter((a) => !a.read).length
-  const recentAlerts = alerts.slice(0, 5)
+  const unreadCount = alerts.filter((a) => !a.read).length;
+  const recentAlerts = alerts.slice(0, 5);
 
   const getAlertIcon = (type: string) => {
     switch (type) {
       case "warning":
-        return AlertTriangleIcon
+        return AlertTriangleIcon;
       case "success":
-        return CheckCircleIcon
+        return CheckCircleIcon;
       default:
-        return InfoIcon
+        return InfoIcon;
     }
-  }
+  };
 
   const getAlertColor = (type: string) => {
     switch (type) {
       case "warning":
-        return "text-accent"
+        return "text-accent";
       case "success":
-        return "text-primary"
+        return "text-primary";
       default:
-        return "text-muted-foreground"
+        return "text-muted-foreground";
     }
-  }
+  };
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="icon" className="relative bg-transparent">
+        <Button
+          variant="outline"
+          size="icon"
+          className="relative bg-transparent"
+        >
           <BellIcon className="h-4 w-4" />
           {unreadCount > 0 && (
             <Badge
@@ -76,16 +90,18 @@ export function AlertsDropdown() {
             </div>
           ) : (
             recentAlerts.map((alert) => {
-              const Icon = getAlertIcon(alert.type)
-              const color = getAlertColor(alert.type)
+              const Icon = getAlertIcon(alert.type);
+              const color = getAlertColor(alert.type);
 
               return (
                 <DropdownMenuItem
                   key={alert.id}
-                  className={`flex items-start gap-3 p-3 cursor-pointer ${alert.read ? "opacity-60" : ""}`}
+                  className={`flex items-start gap-3 p-3 cursor-pointer ${
+                    alert.read ? "opacity-60" : ""
+                  }`}
                   onClick={() => {
                     if (!alert.read) {
-                      markAlertAsRead(alert.id)
+                      markAlertAsReadMutation.mutate(alert.id);
                     }
                   }}
                 >
@@ -102,7 +118,7 @@ export function AlertsDropdown() {
                     </p>
                   </div>
                 </DropdownMenuItem>
-              )
+              );
             })
           )}
         </ScrollArea>
@@ -116,5 +132,5 @@ export function AlertsDropdown() {
         )}
       </DropdownMenuContent>
     </DropdownMenu>
-  )
+  );
 }

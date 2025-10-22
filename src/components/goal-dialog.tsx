@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -12,22 +12,23 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { useFinanceStore } from "@/lib/finance-store"
-import { PlusIcon } from "lucide-react"
-import type { Goal } from "@/lib/types"
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useFinanceStore } from "@/lib/finance-store";
+import { useAddGoal, useUpdateGoal } from "@/lib/finance-queries";
+import { PlusIcon } from "lucide-react";
+import type { Goal } from "@/lib/types";
 
 interface GoalDialogProps {
-  goal?: Goal
-  trigger?: React.ReactNode
+  goal?: Goal;
+  trigger?: React.ReactNode;
 }
 
 export function GoalDialog({ goal, trigger }: GoalDialogProps) {
-  const [open, setOpen] = useState(false)
-  const addGoal = useFinanceStore((state) => state.addGoal)
-  const updateGoal = useFinanceStore((state) => state.updateGoal)
+  const [open, setOpen] = useState(false);
+  const addGoalMutation = useAddGoal();
+  const updateGoalMutation = useUpdateGoal();
 
   const [formData, setFormData] = useState({
     name: goal?.name || "",
@@ -35,13 +36,18 @@ export function GoalDialog({ goal, trigger }: GoalDialogProps) {
     currentAmount: goal?.currentAmount.toString() || "0",
     deadline: goal?.deadline.split("T")[0] || "",
     category: goal?.category || "",
-  })
+  });
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
-    if (!formData.name || !formData.targetAmount || !formData.deadline || !formData.category) {
-      return
+    if (
+      !formData.name ||
+      !formData.targetAmount ||
+      !formData.deadline ||
+      !formData.category
+    ) {
+      return;
     }
 
     const goalData = {
@@ -50,23 +56,23 @@ export function GoalDialog({ goal, trigger }: GoalDialogProps) {
       currentAmount: Number.parseFloat(formData.currentAmount),
       deadline: new Date(formData.deadline).toISOString(),
       category: formData.category,
-    }
+    };
 
     if (goal) {
-      updateGoal(goal.id, goalData)
+      updateGoalMutation.mutate({ id: goal.id, data: goalData });
     } else {
-      addGoal(goalData)
+      addGoalMutation.mutate(goalData);
     }
 
-    setOpen(false)
+    setOpen(false);
     setFormData({
       name: "",
       targetAmount: "",
       currentAmount: "0",
       deadline: "",
       category: "",
-    })
-  }
+    });
+  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -82,7 +88,9 @@ export function GoalDialog({ goal, trigger }: GoalDialogProps) {
         <DialogHeader>
           <DialogTitle>{goal ? "Edit Goal" : "Create New Goal"}</DialogTitle>
           <DialogDescription>
-            {goal ? "Update your financial goal details." : "Set a savings target and track your progress."}
+            {goal
+              ? "Update your financial goal details."
+              : "Set a savings target and track your progress."}
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
@@ -93,7 +101,9 @@ export function GoalDialog({ goal, trigger }: GoalDialogProps) {
                 id="name"
                 placeholder="e.g., Emergency Fund, New Laptop"
                 value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, name: e.target.value })
+                }
                 required
               />
             </div>
@@ -104,7 +114,9 @@ export function GoalDialog({ goal, trigger }: GoalDialogProps) {
                 id="category"
                 placeholder="e.g., Savings, Technology"
                 value={formData.category}
-                onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, category: e.target.value })
+                }
                 required
               />
             </div>
@@ -116,7 +128,9 @@ export function GoalDialog({ goal, trigger }: GoalDialogProps) {
                 type="number"
                 placeholder="0.00"
                 value={formData.targetAmount}
-                onChange={(e) => setFormData({ ...formData, targetAmount: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, targetAmount: e.target.value })
+                }
                 required
               />
             </div>
@@ -128,7 +142,9 @@ export function GoalDialog({ goal, trigger }: GoalDialogProps) {
                 type="number"
                 placeholder="0.00"
                 value={formData.currentAmount}
-                onChange={(e) => setFormData({ ...formData, currentAmount: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, currentAmount: e.target.value })
+                }
                 required
               />
             </div>
@@ -139,13 +155,19 @@ export function GoalDialog({ goal, trigger }: GoalDialogProps) {
                 id="deadline"
                 type="date"
                 value={formData.deadline}
-                onChange={(e) => setFormData({ ...formData, deadline: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, deadline: e.target.value })
+                }
                 required
               />
             </div>
           </div>
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setOpen(false)}
+            >
               Cancel
             </Button>
             <Button type="submit">{goal ? "Update" : "Create"} Goal</Button>
@@ -153,5 +175,5 @@ export function GoalDialog({ goal, trigger }: GoalDialogProps) {
         </form>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

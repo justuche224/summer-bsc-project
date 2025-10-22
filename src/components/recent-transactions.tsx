@@ -1,13 +1,13 @@
-"use client"
+"use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { useFinanceStore } from "@/lib/finance-store"
-import { ArrowUpIcon, ArrowDownIcon } from "lucide-react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { useTransactions } from "@/lib/finance-queries";
+import { ArrowUpIcon, ArrowDownIcon } from "lucide-react";
 
 export function RecentTransactions() {
-  const transactions = useFinanceStore((state) => state.transactions)
-  const recentTransactions = transactions.slice(0, 5)
+  const { data: transactions = [] } = useTransactions();
+  const recentTransactions = transactions.slice(0, 5);
 
   return (
     <Card>
@@ -24,7 +24,9 @@ export function RecentTransactions() {
               <div className="flex items-center gap-3">
                 <div
                   className={`rounded-full p-2 ${
-                    transaction.type === "income" ? "bg-primary/10" : "bg-destructive/10"
+                    transaction.type === "income"
+                      ? "bg-primary/10"
+                      : "bg-destructive/10"
                   }`}
                 >
                   {transaction.type === "income" ? (
@@ -44,8 +46,15 @@ export function RecentTransactions() {
                 </div>
               </div>
               <div className="text-right">
-                <p className={`font-semibold ${transaction.type === "income" ? "text-primary" : "text-destructive"}`}>
-                  {transaction.type === "income" ? "+" : "-"}₦{transaction.amount.toLocaleString()}
+                <p
+                  className={`font-semibold ${
+                    transaction.type === "income"
+                      ? "text-primary"
+                      : "text-destructive"
+                  }`}
+                >
+                  {transaction.type === "income" ? "+" : "-"}₦
+                  {transaction.amount.toLocaleString()}
                 </p>
                 <Badge variant="outline" className="text-xs mt-1">
                   {transaction.category}
@@ -56,5 +65,5 @@ export function RecentTransactions() {
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }

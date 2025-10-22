@@ -1,29 +1,39 @@
-"use client"
+"use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
-import { useFinanceStore } from "@/lib/finance-store"
-import { AlertTriangleIcon, InfoIcon, CheckCircleIcon, XIcon, BellIcon } from "lucide-react"
-import { ScrollArea } from "@/components/ui/scroll-area"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+  useAlerts,
+  useMarkAlertAsRead,
+  useClearAlert,
+} from "@/lib/finance-queries";
+import {
+  AlertTriangleIcon,
+  InfoIcon,
+  CheckCircleIcon,
+  XIcon,
+  BellIcon,
+} from "lucide-react";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 export function AlertsPanel() {
-  const alerts = useFinanceStore((state) => state.alerts)
-  const markAlertAsRead = useFinanceStore((state) => state.markAlertAsRead)
-  const clearAlert = useFinanceStore((state) => state.clearAlert)
+  const { data: alerts = [] } = useAlerts();
+  const markAlertAsReadMutation = useMarkAlertAsRead();
+  const clearAlertMutation = useClearAlert();
 
-  const unreadCount = alerts.filter((a) => !a.read).length
+  const unreadCount = alerts.filter((a) => !a.read).length;
 
   const getAlertIcon = (type: string) => {
     switch (type) {
       case "warning":
-        return AlertTriangleIcon
+        return AlertTriangleIcon;
       case "success":
-        return CheckCircleIcon
+        return CheckCircleIcon;
       default:
-        return InfoIcon
+        return InfoIcon;
     }
-  }
+  };
 
   const getAlertColor = (type: string) => {
     switch (type) {
@@ -32,21 +42,21 @@ export function AlertsPanel() {
           icon: "text-accent",
           bg: "bg-accent/10",
           border: "border-accent/20",
-        }
+        };
       case "success":
         return {
           icon: "text-primary",
           bg: "bg-primary/10",
           border: "border-primary/20",
-        }
+        };
       default:
         return {
           icon: "text-muted-foreground",
           bg: "bg-muted",
           border: "border-border",
-        }
+        };
     }
-  }
+  };
 
   return (
     <Card>
@@ -72,20 +82,24 @@ export function AlertsPanel() {
           ) : (
             <div className="space-y-3">
               {alerts.map((alert) => {
-                const Icon = getAlertIcon(alert.type)
-                const colors = getAlertColor(alert.type)
+                const Icon = getAlertIcon(alert.type);
+                const colors = getAlertColor(alert.type);
 
                 return (
                   <div
                     key={alert.id}
-                    className={`p-4 rounded-lg border ${colors.bg} ${colors.border} ${alert.read ? "opacity-60" : ""}`}
+                    className={`p-4 rounded-lg border ${colors.bg} ${
+                      colors.border
+                    } ${alert.read ? "opacity-60" : ""}`}
                   >
                     <div className="flex items-start gap-3">
                       <div className={`rounded-full p-2 ${colors.bg}`}>
                         <Icon className={`h-4 w-4 ${colors.icon}`} />
                       </div>
                       <div className="flex-1 space-y-1">
-                        <p className="text-sm font-medium leading-relaxed">{alert.message}</p>
+                        <p className="text-sm font-medium leading-relaxed">
+                          {alert.message}
+                        </p>
                         <p className="text-xs text-muted-foreground">
                           {new Date(alert.timestamp).toLocaleString("en-NG", {
                             month: "short",
@@ -97,22 +111,32 @@ export function AlertsPanel() {
                       </div>
                       <div className="flex items-center gap-1">
                         {!alert.read && (
-                          <Button variant="ghost" size="sm" onClick={() => markAlertAsRead(alert.id)}>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() =>
+                              markAlertAsReadMutation.mutate(alert.id)
+                            }
+                          >
                             Mark read
                           </Button>
                         )}
-                        <Button variant="ghost" size="icon" onClick={() => clearAlert(alert.id)}>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => clearAlertMutation.mutate(alert.id)}
+                        >
                           <XIcon className="h-4 w-4" />
                         </Button>
                       </div>
                     </div>
                   </div>
-                )
+                );
               })}
             </div>
           )}
         </ScrollArea>
       </CardContent>
     </Card>
-  )
+  );
 }

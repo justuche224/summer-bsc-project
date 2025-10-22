@@ -1,23 +1,36 @@
-"use client"
+"use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
-import { useFinanceStore } from "@/lib/finance-store"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Area,
+  AreaChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
+import { useTransactions } from "@/lib/finance-queries";
 
 export function SpendingChart() {
-  const transactions = useFinanceStore((state) => state.transactions)
+  const { data: transactions = [] } = useTransactions();
 
   // Group transactions by date for the last 7 days
   const last7Days = Array.from({ length: 7 }, (_, i) => {
-    const date = new Date()
-    date.setDate(date.getDate() - (6 - i))
-    return date.toISOString().split("T")[0]
-  })
+    const date = new Date();
+    date.setDate(date.getDate() - (6 - i));
+    return date.toISOString().split("T")[0];
+  });
 
   const chartData = last7Days.map((date) => {
-    const dayTransactions = transactions.filter((t) => t.date.split("T")[0] === date)
-    const income = dayTransactions.filter((t) => t.type === "income").reduce((sum, t) => sum + t.amount, 0)
-    const expenses = dayTransactions.filter((t) => t.type === "expense").reduce((sum, t) => sum + t.amount, 0)
+    const dayTransactions = transactions.filter(
+      (t) => t.date.split("T")[0] === date
+    );
+    const income = dayTransactions
+      .filter((t) => t.type === "income")
+      .reduce((sum, t) => sum + t.amount, 0);
+    const expenses = dayTransactions
+      .filter((t) => t.type === "expense")
+      .reduce((sum, t) => sum + t.amount, 0);
 
     return {
       date: new Date(date).toLocaleDateString("en-NG", {
@@ -26,8 +39,8 @@ export function SpendingChart() {
       }),
       income: income / 1000,
       expenses: expenses / 1000,
-    }
-  })
+    };
+  });
 
   return (
     <Card>
@@ -39,12 +52,28 @@ export function SpendingChart() {
           <AreaChart data={chartData}>
             <defs>
               <linearGradient id="colorIncome" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
-                <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                <stop
+                  offset="5%"
+                  stopColor="hsl(var(--primary))"
+                  stopOpacity={0.3}
+                />
+                <stop
+                  offset="95%"
+                  stopColor="hsl(var(--primary))"
+                  stopOpacity={0}
+                />
               </linearGradient>
               <linearGradient id="colorExpenses" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="hsl(var(--destructive))" stopOpacity={0.3} />
-                <stop offset="95%" stopColor="hsl(var(--destructive))" stopOpacity={0} />
+                <stop
+                  offset="5%"
+                  stopColor="hsl(var(--destructive))"
+                  stopOpacity={0.3}
+                />
+                <stop
+                  offset="95%"
+                  stopColor="hsl(var(--destructive))"
+                  stopOpacity={0}
+                />
               </linearGradient>
             </defs>
             <XAxis
@@ -89,5 +118,5 @@ export function SpendingChart() {
         </ResponsiveContainer>
       </CardContent>
     </Card>
-  )
+  );
 }
