@@ -33,7 +33,7 @@ export default function UserMenu() {
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>
-				<Button variant="outline">{session.user.name}</Button>
+				<Button variant="outline">{session.user.name.slice(0,2).toUpperCase()}</Button>
 			</DropdownMenuTrigger>
 			<DropdownMenuContent className="bg-card space-y-2 z-1000">
 				<DropdownMenuLabel>My Account</DropdownMenuLabel>

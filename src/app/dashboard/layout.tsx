@@ -23,9 +23,9 @@ const layout = ({ children }: { children: React.ReactNode }) => {
                 Track your income, expenses, and achieve your financial goals
               </p>
             </div>
-            <div className="flex items-center gap-3">
-              <AlertsDropdown />
+            <div className="flex items-center gap-3 max-sm:justify-between">
               <TransactionDialog />
+              <AlertsDropdown />
               <ModeToggle />
               <UserMenu />
             </div>
