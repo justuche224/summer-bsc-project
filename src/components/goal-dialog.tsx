@@ -15,7 +15,6 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useFinanceStore } from "@/lib/finance-store";
 import { useAddGoal, useUpdateGoal } from "@/lib/finance-queries";
 import { PlusIcon } from "lucide-react";
 import type { Goal } from "@/lib/types";

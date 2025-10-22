@@ -3,7 +3,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { useFinanceStore } from "@/lib/finance-store";
 import { useGoals, useDeleteGoal } from "@/lib/finance-queries";
 import { EditIcon, TrashIcon, TargetIcon } from "lucide-react";
 import { GoalDialog } from "./goal-dialog";

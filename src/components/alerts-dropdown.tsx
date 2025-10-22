@@ -10,11 +10,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useFinanceStore } from "@/lib/finance-store";
 import {
   useAlerts,
   useMarkAlertAsRead,
-  useClearAlert,
 } from "@/lib/finance-queries";
 import {
   BellIcon,
@@ -27,7 +25,6 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 export function AlertsDropdown() {
   const { data: alerts = [] } = useAlerts();
   const markAlertAsReadMutation = useMarkAlertAsRead();
-  const clearAlertMutation = useClearAlert();
 
   const unreadCount = alerts.filter((a) => !a.read).length;
   const recentAlerts = alerts.slice(0, 5);

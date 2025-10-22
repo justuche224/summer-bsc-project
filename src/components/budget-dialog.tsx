@@ -22,7 +22,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useFinanceStore } from "@/lib/finance-store";
 import { useAddBudget, useUpdateBudget } from "@/lib/finance-queries";
 import { PlusIcon } from "lucide-react";
 import type { Budget } from "@/lib/types";
