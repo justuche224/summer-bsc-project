@@ -120,11 +120,13 @@ export function TransactionsList() {
             filteredTransactions.map((transaction) => (
               <div
                 key={transaction.id}
-                className="flex items-center justify-between p-4 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
+                className="p-4 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
               >
-                <div className="flex items-center gap-4 flex-1">
+                {/* Mobile-first layout */}
+                <div className="flex items-start gap-3">
+                  {/* Transaction type icon */}
                   <div
-                    className={`rounded-full p-2 ${
+                    className={`rounded-full p-2 flex-shrink-0 ${
                       transaction.type === "income"
                         ? "bg-primary/10"
                         : "bg-destructive/10"
@@ -136,72 +138,111 @@ export function TransactionsList() {
                       <ArrowDownIcon className="h-4 w-4 text-destructive" />
                     )}
                   </div>
-                  <div className="flex-1">
-                    <p className="font-medium">{transaction.description}</p>
-                    <div className="flex items-center gap-2 mt-1">
-                      <Badge variant="outline" className="text-xs">
-                        {transaction.category}
-                      </Badge>
-                      <span className="text-sm text-muted-foreground">
-                        {new Date(transaction.date).toLocaleDateString(
-                          "en-NG",
-                          {
-                            year: "numeric",
-                            month: "short",
-                            day: "numeric",
+
+                  {/* Main content area */}
+                  <div className="flex-1 min-w-0">
+                    {/* Transaction name and amount row */}
+                    <div className="flex items-start justify-between gap-2 mb-2">
+                      <h3 className="font-medium text-sm sm:text-base truncate pr-2">
+                        {transaction.description}
+                      </h3>
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        <p
+                          className={`font-semibold text-sm sm:text-base whitespace-nowrap ${
+                            transaction.type === "income"
+                              ? "text-primary"
+                              : "text-destructive"
+                          }`}
+                        >
+                          {transaction.type === "income" ? "+" : "-"}₦
+                          {transaction.amount.toLocaleString()}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Category, date, and actions row */}
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2 min-w-0 flex-1">
+                        <Badge
+                          variant="outline"
+                          className="text-xs flex-shrink-0"
+                        >
+                          {transaction.category}
+                        </Badge>
+                        <span className="text-xs sm:text-sm text-muted-foreground whitespace-nowrap">
+                          <span className="sm:hidden">
+                            {new Date(transaction.date).toLocaleDateString(
+                              "en-NG",
+                              {
+                                month: "short",
+                                day: "numeric",
+                              }
+                            )}
+                          </span>
+                          <span className="hidden sm:inline">
+                            {new Date(transaction.date).toLocaleDateString(
+                              "en-NG",
+                              {
+                                year: "numeric",
+                                month: "short",
+                                day: "numeric",
+                              }
+                            )}
+                          </span>
+                        </span>
+                      </div>
+
+                      {/* Action buttons */}
+                      <div className="flex items-center gap-1 flex-shrink-0">
+                        <TransactionDialog
+                          transaction={transaction}
+                          trigger={
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                            >
+                              <EditIcon className="h-3.5 w-3.5" />
+                            </Button>
                           }
-                        )}
-                      </span>
+                        />
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                            >
+                              <TrashIcon className="h-3.5 w-3.5" />
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>
+                                Delete Transaction
+                              </AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Are you sure you want to delete this
+                                transaction? This action cannot be undone.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() =>
+                                  deleteTransactionMutation.mutate(
+                                    transaction.id
+                                  )
+                                }
+                              >
+                                Delete
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <p
-                      className={`font-semibold text-lg ${
-                        transaction.type === "income"
-                          ? "text-primary"
-                          : "text-destructive"
-                      }`}
-                    >
-                      {transaction.type === "income" ? "+" : "-"}₦
-                      {transaction.amount.toLocaleString()}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2 ml-4">
-                  <TransactionDialog
-                    transaction={transaction}
-                    trigger={
-                      <Button variant="ghost" size="icon">
-                        <EditIcon className="h-4 w-4" />
-                      </Button>
-                    }
-                  />
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button variant="ghost" size="icon">
-                        <TrashIcon className="h-4 w-4" />
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Delete Transaction</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          Are you sure you want to delete this transaction? This
-                          action cannot be undone.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction
-                          onClick={() =>
-                            deleteTransactionMutation.mutate(transaction.id)
-                          }
-                        >
-                          Delete
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
                 </div>
               </div>
             ))
