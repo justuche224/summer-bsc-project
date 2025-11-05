@@ -1,5 +1,4 @@
 import { DashboardStats } from "@/components/dashboard-stats";
-// import { RecentTransactions } from "@/components/recent-transactions";
 import { GoalsOverview } from "@/components/goals-overview";
 import { SpendingChart } from "@/components/spending-chart";
 import { TransactionsList } from "@/components/transactions-list";
@@ -8,13 +7,12 @@ import { GoalsList } from "@/components/goals-list";
 import { CategoryBreakdown } from "@/components/category-breakdown";
 import { SpendingTrends } from "@/components/spending-trends";
 import { FinancialSummary } from "@/components/financial-summary";
-// import { AlertsPanel } from "@/components/alerts-panel";
+import { ReportButton } from "@/components/report-button";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
 export default async function DashboardPage() {
-
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -23,11 +21,14 @@ export default async function DashboardPage() {
     redirect("/");
   }
 
-
   return (
     <div className="min-h-screen bg-linear-to-br from-background via-background to-muted/20">
       <div className="container mx-auto p-6 space-y-8">
-        {/* Stats Cards */}
+        <div className="flex justify-between items-center">
+          <h1 className="text-3xl font-bold">Dashboard</h1>
+          <ReportButton />
+        </div>
+
         <DashboardStats />
 
         {/* Transactions */}
