@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Rain Drop Finance",
+  title: "Management finance",
   description: "Manage your finances with ease",
 };
 

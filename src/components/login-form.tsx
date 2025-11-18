@@ -3,11 +3,7 @@
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  FieldDescription,
-  FieldGroup,
-  FieldSeparator,
-} from "@/components/ui/field";
+import { FieldDescription, FieldGroup } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import {
   Form,
@@ -92,7 +88,7 @@ export function LoginForm({
                       playwrite.className
                     )}
                   >
-                    Rain Drop Finance
+                    Management finance
                   </h1>
                   <h2 className="text-2xl font-bold">Login to your account</h2>
                   <p className="text-muted-foreground text-balance">
@@ -142,7 +138,7 @@ export function LoginForm({
                       <FormControl>
                         <div className="relative">
                           <Input
-                          placeholder="********"
+                            placeholder="********"
                             type={showPassword ? "text" : "password"}
                             {...field}
                             disabled={isLoading}
@@ -171,7 +167,8 @@ export function LoginForm({
                 </Button>
 
                 <FieldDescription className="text-center">
-                  Don&apos;t have an account? <Link href="/register">Sign up</Link>
+                  Don&apos;t have an account?{" "}
+                  <Link href="/register">Sign up</Link>
                 </FieldDescription>
               </FieldGroup>
             </form>
